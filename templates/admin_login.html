@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5 mx-auto">
+        <div class="card border-danger">
+            <div class="card-body p-4">
+                <h3 class="card-title mb-4">Admin Login</h3>
+
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <form action="/admin/login" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100">Admin Login</button>
+                </form>
+
+                <hr>
+                <p class="text-center text-muted small">
+                    <a href="/login">User Login</a> | <a href="/author/login">Author Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

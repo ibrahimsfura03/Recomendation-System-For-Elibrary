@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card mb-3 border-0 shadow-sm" style="border-top: 3px solid #dc3545 !important;">
+                <div class="card-body">
+                    <h6 class="card-title text-danger"><i class="fas fa-shield-alt"></i> Admin Panel</h6>
+                    <p class="card-text small text-muted">System Administration</p>
+                </div>
+            </div>
+
+            <div class="list-group">
+                <a href="/admin/dashboard" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/admin/manage-users" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users"></i> Manage Users
+                </a>
+                <a href="/admin/manage-authors" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-tie"></i> Manage Authors
+                </a>
+                <a href="/admin/manage-books" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-book"></i> Manage Books
+                </a>
+                <a href="/logout" class="list-group-item list-group-item-action text-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <h2 class="mb-4"><i class="fas fa-book"></i> Manage Books</h2>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {% if books %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Book ID</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for book in books %}
+                                <tr>
+                                    <td><small>{{ book.book_id }}</small></td>
+                                    <td>{{ book.title[:35] }}</td>
+                                    <td>{{ book.author }}</td>
+                                    <td><small>{{ book.category }}</small></td>
+                                    <td>
+                                        <span class="badge bg-{% if book.get('status') == 'approved' %}success{% elif book.get('status') == 'pending' %}warning{% else %}danger{% endif %}">
+                                            {{ book.get('status', 'pending') }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if book.get('imported_date') %}
+                                            <small>{{ book.imported_date.strftime('%Y-%m-%d') if book.imported_date.strftime else book.imported_date }}</small>
+                                        {% else %}
+                                            <small>N/A</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            {% if book.get('status') == 'pending' %}
+                                            <button type="button" class="btn btn-success" onclick="if(confirm('Approve this book?')) { fetch('/api/admin/approve-book/{{ book.book_id }}', {method:'POST'}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-danger" onclick="var reason=prompt('Reason for rejection:'); if(reason) { fetch('/api/admin/reject-book/{{ book.book_id }}', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({reason:reason})}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Reject">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% endif %}
+                                            <button type="button" class="btn btn-danger" onclick="if(confirm('Delete this book?')) { fetch('/api/admin/delete-book/{{ book.book_id }}', {method:'POST'}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-4"><i class="fas fa-inbox"></i> No books found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

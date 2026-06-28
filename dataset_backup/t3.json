@@ -1,0 +1,103 @@
+{
+  "count": 10,
+  "users": [
+    {
+      "email": "alice@example.com",
+      "joined_date": "2024-01-15",
+      "name": "Alice Smith",
+      "preferred_categories": [
+        "Computer Science",
+        "Mathematics"
+      ],
+      "user_id": "U001"
+    },
+    {
+      "email": "bob@example.com",
+      "joined_date": "2024-02-20",
+      "name": "Bob Jones",
+      "preferred_categories": [
+        "Literature",
+        "History"
+      ],
+      "user_id": "U002"
+    },
+    {
+      "email": "charlie@example.com",
+      "joined_date": "2024-03-05",
+      "name": "Charlie Brown",
+      "preferred_categories": [
+        "Philosophy"
+      ],
+      "user_id": "U003"
+    },
+    {
+      "email": "diana@example.com",
+      "joined_date": "2024-04-10",
+      "name": "Diana Prince",
+      "preferred_categories": [
+        "History",
+        "Philosophy"
+      ],
+      "user_id": "U004"
+    },
+    {
+      "email": "evan@example.com",
+      "joined_date": "2024-05-12",
+      "name": "Evan Wright",
+      "preferred_categories": [
+        "Computer Science"
+      ],
+      "user_id": "U005"
+    },
+    {
+      "email": "fiona@example.com",
+      "joined_date": "2024-06-18",
+      "name": "Fiona Cole",
+      "preferred_categories": [
+        "Mathematics",
+        "Literature"
+      ],
+      "user_id": "U006"
+    },
+    {
+      "email": "george@example.com",
+      "joined_date": "2024-07-22",
+      "name": "George Miller",
+      "preferred_categories": [
+        "Computer Science",
+        "Philosophy"
+      ],
+      "user_id": "U007"
+    },
+    {
+      "email": "hannah@example.com",
+      "joined_date": "2024-08-30",
+      "name": "Hannah Lee",
+      "preferred_categories": [
+        "History",
+        "Literature",
+        "Mathematics"
+      ],
+      "user_id": "U008"
+    },
+    {
+      "email": "ian@example.com",
+      "joined_date": "2024-09-14",
+      "name": "Ian Davies",
+      "preferred_categories": [
+        "Mathematics"
+      ],
+      "user_id": "U009"
+    },
+    {
+      "email": "julia@example.com",
+      "joined_date": "2024-10-01",
+      "name": "Julia Evans",
+      "preferred_categories": [
+        "Computer Science",
+        "History"
+      ],
+      "user_id": "U010"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "message": "Missing required fields: user_id, book_id, rating.",
+  "status": "error"
+}

@@ -1,0 +1,176 @@
+MONGODB SCHEMA DOCUMENTATION
+=============================
+
+DATABASE: elibrary
+LOCATION: mongodb://localhost:27017
+
+COLLECTIONS (6 total)
+=====================
+
+1. USERS (270 documents)
+   ├─ _id: ObjectId (auto-generated)
+   ├─ user_id: String (unique per dataset) - "U001"
+   ├─ name: String - "Alice Smith"
+   ├─ email: String - "alice@example.com"
+   ├─ password: String (hashed) - bcrypt hash
+   ├─ role: String - "user"
+   ├─ dataset: String - "set1", "set2", or "set3"
+   ├─ joined_date: String - "2024-01-15"
+   ├─ preferred_categories: Array - ["Computer Science", "Mathematics"]
+   ├─ saved_books: Array - ["B001", "B002"]
+   ├─ reading_history: Array - [{"book_id": "B001", "date": "2024-01-20"}]
+   └─ imported_date: DateTime - auto-added on import
+
+2. BOOKS (540 documents - 180 per dataset, same books replicated 3x)
+   ├─ _id: ObjectId
+   ├─ book_id: String - "B001"
+   ├─ title: String - "Intro to Algorithms"
+   ├─ author: String - "Thomas Cormen"
+   ├─ category: String - "Computer Science", "Literature", "Philosophy", etc.
+   ├─ description: String - Full book description
+   ├─ published_year: Integer - 2009
+   ├─ dataset: String - "set1", "set2", or "set3"
+   └─ imported_date: DateTime
+
+3. RATINGS (327 documents)
+   ├─ _id: ObjectId
+   ├─ user_id: String - "U001"
+   ├─ book_id: String - "B001"
+   ├─ rating: Integer - 1-5
+   ├─ rated_at: DateTime - timestamp
+   └─ dataset: String - "set1", "set2", or "set3"
+
+4. ADMINS (1 document)
+   ├─ _id: ObjectId
+   ├─ admin_id: String - "ADMIN_admin"
+   ├─ username: String - "admin" (unique)
+   ├─ password: String (hashed) - bcrypt hash
+   └─ full_name: String - "System Administrator"
+
+5. AUTHORS (3 documents + growing)
+   ├─ _id: ObjectId
+   ├─ author_id: String - "A001" (unique)
+   ├─ full_name: String - "Thomas Cormen"
+   ├─ email: String - "thomas.cormen@example.com" (unique)
+   ├─ password: String (hashed) - bcrypt hash
+   ├─ biography: String - Author bio
+   ├─ uploaded_books: Array - ["B001", "B002"]
+   ├─ status: String - "active" or "inactive"
+   ├─ role: String - "author"
+   └─ created_at: DateTime
+
+6. RECOMMENDATION_HISTORY (9+ documents, growing)
+   ├─ _id: ObjectId
+   ├─ user_id: String - "U001"
+   ├─ recommended_books: Array - [
+   │   {
+   │     "book_id": "B006",
+   │     "title": "1984",
+   │     "author": "George Orwell",
+   │     "score": 4.0
+   │   },
+   │   ...
+   │ ]
+   ├─ recommendation_engine: String - "KNN", "Content-Based", or "Hybrid"
+   ├─ dataset: String - "set1", "set2", or "set3"
+   └─ timestamp: DateTime
+
+INDEXES
+=======
+users:
+  - user_id (non-unique)
+  - email (non-unique)
+
+books:
+  - book_id (non-unique)
+  - category (non-unique)
+
+ratings:
+  - (user_id, book_id, dataset) - unique compound index
+  - user_id (non-unique)
+
+admins:
+  - username (unique)
+
+authors:
+  - author_id (unique)
+  - email (non-unique)
+
+DATASET BREAKDOWN
+=================
+set1 (STEM Bias):
+  - Users: 10 (U001-U010)
+  - Books: 20 (B001-B020)
+  - Ratings: 106
+
+set2 (Humanities Bias):
+  - Users: 10 (U001-U010)
+  - Books: 20 (B001-B020)
+  - Ratings: 119
+
+set3 (Random Mixed):
+  - Users: 10 (U001-U010)
+  - Books: 20 (B001-B020)
+  - Ratings: 101
+
+DATA TYPES
+==========
+String: Text data (user_id, email, password, etc.)
+Integer: Whole numbers (rating 1-5, published_year)
+DateTime: ISO 8601 timestamp (joined_date, rated_at)
+Array: Lists of values (preferred_categories, saved_books)
+Object: Nested documents (recommended_books items)
+Boolean: true/false values
+
+TOTAL DOCUMENTS
+===============
+users:                    270 (30 per dataset × 3 + duplicates)
+books:                    540 (20 per dataset × 27 due to import logic)
+ratings:                  327 (106 + 119 + 101 + new ratings)
+admins:                     1 (default admin)
+authors:                    3 (sample authors)
+recommendation_history:     9+ (grows as users get recommendations)
+
+TOTAL SIZE: ~2-5 MB
+
+CREDENTIALS FOR TESTING
+=======================
+
+Admin Login:
+  Username: admin
+  Password: admin123
+
+Sample User Accounts (from set2):
+  Email: alice@example.com
+  Password: (users registered via signup)
+
+Sample Author Accounts:
+  Email: thomas.cormen@example.com, Password: author123
+  Email: jane.austen@example.com, Password: author123
+  Email: george.orwell@example.com, Password: author123
+
+NOTE: Passwords are hashed with bcrypt. Plain text passwords shown above won't work in database.
+
+SAMPLE QUERIES (MongoDB Shell)
+==============================
+
+// Find all users in set2
+db.users.find({"dataset": "set2"})
+
+// Find all books in "Computer Science" category
+db.books.find({"category": "Computer Science"})
+
+// Get ratings for a specific user
+db.ratings.find({"user_id": "U001"})
+
+// Get average rating for a book
+db.ratings.aggregate([
+  {"$match": {"book_id": "B001"}},
+  {"$group": {"_id": "$book_id", "avg_rating": {"$avg": "$rating"}}}
+])
+
+// Get recommendation history for a user
+db.recommendation_history.find({"user_id": "U001"})
+
+// Count users by dataset
+db.users.aggregate([{"$group": {"_id": "$dataset", "count": {"$sum": 1}}}])

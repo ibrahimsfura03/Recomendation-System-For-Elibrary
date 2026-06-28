@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <h2 class="mb-4">Rate a Book</h2>
+
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+            Rating submitted successfully!
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/rate" method="POST">
+            <div class="mb-3">
+                <label for="user_id" class="form-label">User</label>
+                <select class="form-select" id="user_id" name="user_id" required>
+                    <option value="" selected disabled>Select a user...</option>
+                    {% for user in users %}
+                    <option value="{{ user.user_id }}">{{ user.name }} ({{ user.user_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="book_id" class="form-label">Book</label>
+                <select class="form-select" id="book_id" name="book_id" required>
+                    <option value="" selected disabled>Select a book...</option>
+                    {% for book in books %}
+                    <option value="{{ book.book_id }}">{{ book.title }} by {{ book.author }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="rating" class="form-label">Rating</label>
+                <select class="form-select" id="rating" name="rating" required>
+                    <option value="" selected disabled>Select rating...</option>
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="1">1 - Terrible</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Submit Rating</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

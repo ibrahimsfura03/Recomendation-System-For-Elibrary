@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="bg-gradient p-5 rounded-lg shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h1 class="mb-3"><i class="fas fa-book-open"></i> Welcome to E-Library</h1>
+                <p class="lead mb-4">Discover thousands of books and get personalized recommendations</p>
+                <form action="/search" method="GET" class="d-flex gap-2">
+                    <input type="text" class="form-control form-control-lg" name="q" placeholder="Search books by title, author, or category..." value="{{ request.args.get('q', '') }}">
+                    <button class="btn btn-light btn-lg" type="submit"><i class="fas fa-search"></i> Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    {% if categories %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="fas fa-tags"></i> Browse by Category</h4>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/books" class="btn btn-outline-primary btn-sm"><i class="fas fa-layer-group"></i> All Books</a>
+                {% for cat in categories %}
+                <a href="/books?category={{ cat }}" class="btn btn-outline-secondary btn-sm">{{ cat }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Books Grid -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3><i class="fas fa-book-reader"></i> Featured Books</h3>
+                {% if session.get('user_role') == 'user' %}
+                <a href="/user/dashboard" class="btn btn-sm btn-outline-primary"><i class="fas fa-wand-magic-sparkles"></i> Get Recommendations</a>
+                {% endif %}
+            </div>
+        </div>
+        {% if books %}
+            {% for book in books %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm hover-shadow" style="transition: all 0.3s ease;">
+                    <!-- Book Cover with Hover Effect -->
+                    <div class="position-relative" style="height: 250px; overflow: hidden; background: #f8f9fa;">
+                        {% if book.get('cover_image') %}
+                            <img src="{{ book.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ book.title }}" loading="lazy">
+                        {% else %}
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                <div class="text-center">
+                                    <div style="font-size: 3rem;"><i class="fas fa-book"></i></div>
+                                    <small>No Cover</small>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <!-- Overlay on Hover -->
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0'">
+                            {% if book.get('book_file') %}
+                            <a href="{{ book.book_file }}" target="_blank" class="btn btn-light" title="Open Book">
+                                <i class="fas fa-book-open"></i> Open
+                            </a>
+                            {% else %}
+                            <button class="btn btn-light" onclick="showErrorModal('Book file not available')" title="Book Not Available">
+                                <i class="fas fa-ban"></i> N/A
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Book Info -->
+                    <div class="card-body">
+                        <h6 class="card-title text-truncate" title="{{ book.title }}">{{ book.title[:35] }}</h6>
+                        <p class="card-text text-muted small text-truncate">by {{ book.author }}</p>
+                        
+                        <!-- Category Badge -->
+                        <div class="mb-2">
+                            <span class="badge" style="background-color: #667eea; color: white;">{{ book.category }}</span>
+                        </div>
+                        
+                        <!-- Rating -->
+                        <div class="small mb-3">
+                            <span class="text-warning"><i class="fas fa-star"></i> 4.5</span>
+                            <span class="text-muted ms-2">(12 ratings)</span>
+                        </div>
+                        
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2">
+                            <a href="/book/{{ book.book_id }}" class="btn btn-sm" style="background-color: #667eea; color: white; border: none;"><i class="fas fa-eye"></i> View Details</a>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        {% if session.get('user_role') == 'user' %}
+                        <div class="mt-2 d-flex gap-2 justify-content-center">
+                            <button class="btn btn-outline-primary btn-sm" onclick="saveBook('{{ book.book_id }}')" title="Save"><i class="fas fa-bookmark"></i></button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="showRatingModal('{{ book.book_id }}')" title="Rate"><i class="fas fa-star"></i></button>
+                        </div>
+                        {% elif not session.get('user_role') %}
+                        <div class="mt-2 text-center">
+                            <small class="text-muted"><a href="/login">Login to rate & save</a></small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-inbox" style="font-size: 2rem;"></i>
+                    <p class="mt-3 mb-0">No books available</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="row g-3">
+                {% if session.get('user_role') != 'user' and not session.get('user_role') %}
+                <div class="col-md-6">
+                    <div class="card bg-primary text-white border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title"><i class="fas fa-user-circle"></i> Join as Reader</h5>
+                            <p class="card-text">Sign up and start reading amazing books with personalized recommendations</p>
+                            <a href="/signup" class="btn btn-light btn-sm"><i class="fas fa-arrow-right"></i> Sign Up</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-success text-white border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title"><i class="fas fa-pen-fancy"></i> Join as Author</h5>
+                            <p class="card-text">Share your books with readers worldwide. Register now!</p>
+                            <a href="/author/signup" class="btn btn-light btn-sm"><i class="fas fa-arrow-right"></i> Register</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if session.get('user_role') == 'author' %}
+                <div class="col-md-12">
+                    <div class="card bg-info text-white border-0 shadow-sm">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title"><i class="fas fa-upload"></i> Ready to Share Your Work?</h5>
+                                <p class="card-text mb-0">Upload your book and reach thousands of readers</p>
+                            </div>
+                            <a href="/author/upload-book" class="btn btn-light btn-sm ms-3"><i class="fas fa-plus"></i> Upload Book</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

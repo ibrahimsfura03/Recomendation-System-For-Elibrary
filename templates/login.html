@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5 mx-auto">
+        <div class="card">
+            <div class="card-body p-4">
+                <h3 class="card-title mb-4">User Login</h3>
+
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <form action="/login" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Username or Email</label>
+                        <input type="text" class="form-control" name="identifier" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+                </form>
+
+                <hr>
+
+                <p class="text-center text-muted mb-2">
+                    Don't have an account? <a href="/signup">Sign up here</a>
+                </p>
+
+                <p class="text-center text-muted small mb-0">
+                    <a href="/author/login">Author Login</a> | <a href="/admin/login">Admin Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

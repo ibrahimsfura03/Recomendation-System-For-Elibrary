@@ -1,0 +1,76 @@
+{
+  "count": 10,
+  "recommendations": [
+    {
+      "author": "Stuart Russell",
+      "book_id": "B004",
+      "category": "Computer Science",
+      "predicted_score": 4.8,
+      "title": "Artificial Intelligence"
+    },
+    {
+      "author": "Jane Austen",
+      "book_id": "B005",
+      "category": "Literature",
+      "predicted_score": 4.8,
+      "title": "Pride and Prejudice"
+    },
+    {
+      "author": "Immanuel Kant",
+      "book_id": "B016",
+      "category": "Philosophy",
+      "predicted_score": 4.7,
+      "title": "Critique of Pure Reason"
+    },
+    {
+      "author": "Harper Lee",
+      "book_id": "B007",
+      "category": "Literature",
+      "predicted_score": 4.5,
+      "title": "To Kill a Mockingbird"
+    },
+    {
+      "author": "Thomas Cormen",
+      "book_id": "B001",
+      "category": "Computer Science",
+      "predicted_score": 4.3,
+      "title": "Intro to Algorithms"
+    },
+    {
+      "author": "Yuval Noah Harari",
+      "book_id": "B011",
+      "category": "History",
+      "predicted_score": 4.3,
+      "title": "Sapiens"
+    },
+    {
+      "author": "Gilbert Strang",
+      "book_id": "B018",
+      "category": "Mathematics",
+      "predicted_score": 4.2,
+      "title": "Linear Algebra"
+    },
+    {
+      "author": "Peter Frankopan",
+      "book_id": "B012",
+      "category": "History",
+      "predicted_score": 4.2,
+      "title": "The Silk Roads"
+    },
+    {
+      "author": "George Orwell",
+      "book_id": "B006",
+      "category": "Literature",
+      "predicted_score": 4.2,
+      "title": "1984"
+    },
+    {
+      "author": "Michael Spivak",
+      "book_id": "B017",
+      "category": "Mathematics",
+      "predicted_score": 4.2,
+      "title": "Calculus"
+    }
+  ],
+  "user_id": "U999"
+}

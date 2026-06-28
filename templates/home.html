@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% block title %}Catalog — E-Library{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ── Search hero ── */
+    .search-hero {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-top: 3px solid #000;
+        padding: 24px 28px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .search-hero-text h1 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 2px;
+    }
+    .search-hero-text p {
+        font-size: 11px;
+        color: #888;
+        margin: 0;
+    }
+    .search-input-wrap {
+        display: flex;
+        flex: 1;
+        min-width: 220px;
+        max-width: 420px;
+        margin-left: auto;
+    }
+    .search-input-wrap input {
+        flex: 1;
+        border: 1px solid #000;
+        border-right: none;
+        padding: 8px 14px;
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+        outline: none;
+        background: #fff;
+    }
+    .search-input-wrap input:focus { border-color: #000; }
+    .search-input-wrap button {
+        background: #000;
+        color: #fff;
+        border: 1px solid #000;
+        padding: 8px 18px;
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .search-input-wrap button:hover { background: #222; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+    .filter-label { font-size: 11px; color: #888; flex-shrink: 0; }
+    .fpill {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        padding: 4px 14px;
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #444;
+        cursor: pointer;
+        border-radius: 40px;
+    }
+    .fpill:hover { border-color: #000; color: #000; }
+    .fpill.active { background: #000; color: #fff; border-color: #000; }
+    .count-label { font-size: 11px; color: #999; margin-left: auto; }
+
+    /* ── Card grid ── */
+    .books-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+    @media (max-width: 960px)  { .books-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px)  { .books-grid { grid-template-columns: 1fr; } }
+
+    /* ── Book card ── */
+    .book-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-left: 3px solid #000;
+        display: flex;
+        flex-direction: column;
+    }
+    .book-card:hover {
+        border-color: #bbb;
+        border-left-color: #000;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    /* card sections */
+    .bc-head {
+        padding: 9px 14px;
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .bc-body {
+        padding: 16px 14px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .bc-foot {
+        padding: 10px 14px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    /* book info */
+    .bk-id   { font-size: 10px; color: #bbb; }
+    .bk-title { font-size: 13px; font-weight: 700; margin: 0 0 3px; line-height: 1.35; }
+    .bk-meta  { font-size: 11px; color: #777; margin: 0 0 10px; }
+    .bk-desc  { font-size: 11px; color: #444; line-height: 1.7; flex: 1; margin: 0 0 14px; }
+
+    /* stars */
+    .star-row { display: flex; align-items: center; gap: 1px; }
+    .star { font-size: 14px; color: #ddd; cursor: pointer; user-select: none; line-height: 1; }
+    .star.on      { color: #000; }
+    .star.preview { color: #888; }
+    .star-hint { font-size: 10px; color: #bbb; margin-left: 6px; }
+
+    /* action buttons */
+    .btn-read {
+        flex: 1;
+        background: #000;
+        color: #fff;
+        border: none;
+        padding: 7px 0;
+        font-size: 11px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+    .btn-read:hover { background: #222; color: #fff; }
+    .btn-sq {
+        width: 31px;
+        height: 31px;
+        background: #fff;
+        color: #555;
+        border: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 14px;
+        flex-shrink: 0;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .btn-sq:hover { border-color: #000; color: #000; }
+    .btn-sq.saved { background: #000; color: #fff; border-color: #000; }
+
+    /* empty state */
+    .empty-state {
+        padding: 56px 32px;
+        text-align: center;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+    }
+    .empty-state p { margin: 0; color: #888; font-size: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Search hero ── -->
+<div class="search-hero">
+    <div class="search-hero-text">
+        <h1>Library Catalog</h1>
+        <p>{{ books|length }} titles across 5 categories</p>
+    </div>
+    <div class="search-input-wrap">
+        <input type="text" id="searchInput" placeholder="Search titles, authors, categories…" autocomplete="off">
+        <button type="button" id="searchBtn">Search</button>
+    </div>
+</div>
+
+<!-- ── Filter bar ── -->
+<div class="filter-bar">
+    <span class="filter-label">Category</span>
+    <button class="fpill active" data-cat="all">All</button>
+    {% for cat in ['Computer Science', 'Literature', 'History', 'Philosophy', 'Mathematics'] %}
+    <button class="fpill" data-cat="{{ cat }}">{{ cat }}</button>
+    {% endfor %}
+    <span class="count-label" id="resultCount">{{ books|length }} titles</span>
+</div>
+
+<!-- ── Book grid ── -->
+{% if books %}
+<div class="books-grid" id="booksGrid">
+    {% for book in books %}
+    <div class="book-card book-item"
+         data-cat="{{ book.category }}"
+         data-search="{{ book.title|lower }} {{ book.author|lower }} {{ book.category|lower }} {{ book.book_id|lower }}">
+
+        <!-- header -->
+        <div class="bc-head">
+            <span class="badge-cat">{{ book.category }}</span>
+            <span class="bk-id">{{ book.book_id }}</span>
+        </div>
+
+        <!-- body -->
+        <div class="bc-body">
+            <h2 class="bk-title">{{ book.title }}</h2>
+            <p class="bk-meta">{{ book.author }}&nbsp;&nbsp;&middot;&nbsp;&nbsp;{{ book.published_year }}</p>
+            <p class="bk-desc">
+                {{ book.description[:100] }}{% if book.description|length > 100 %}&hellip;{% endif %}
+            </p>
+
+            <!-- star rating -->
+            <div class="star-row" data-id="{{ book.book_id }}">
+                {% for i in range(1, 6) %}
+                <span class="star" data-v="{{ i }}">&#9733;</span>
+                {% endfor %}
+                <span class="star-hint">Rate this</span>
+            </div>
+        </div>
+
+        <!-- actions -->
+        <div class="bc-foot">
+            <a href="#" class="btn-read">&#9654;&nbsp; Read</a>
+            <button class="btn-sq save-btn" data-id="{{ book.book_id }}" title="Save to list">&#9825;</button>
+            <button class="btn-sq" title="More info">&#8942;</button>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+<div id="noResults" class="empty-state" style="display:none; margin-top:8px;">
+    <p>No titles match your search or filter.</p>
+</div>
+
+{% else %}
+<div class="empty-state">
+    <p>No books found in the active dataset. The database connection may be offline.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+(function () {
+    const items  = document.querySelectorAll('.book-item');
+    const pills  = document.querySelectorAll('.fpill');
+    const inp    = document.getElementById('searchInput');
+    const grid   = document.getElementById('booksGrid');
+    const none   = document.getElementById('noResults');
+    const count  = document.getElementById('resultCount');
+    let cat = 'all';
+
+    function run() {
+        const q = inp ? inp.value.toLowerCase().trim() : '';
+        let n = 0;
+        items.forEach(el => {
+            const ok = (cat === 'all' || el.dataset.cat === cat) && (!q || el.dataset.search.includes(q));
+            el.style.display = ok ? '' : 'none';
+            if (ok) n++;
+        });
+        if (none)  none.style.display  = n === 0 ? '' : 'none';
+        if (grid)  grid.style.display  = n === 0 ? 'none' : '';
+        if (count) count.textContent   = n + ' title' + (n !== 1 ? 's' : '');
+    }
+
+    pills.forEach(p => p.addEventListener('click', () => {
+        pills.forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        cat = p.dataset.cat;
+        run();
+    }));
+
+    if (inp) inp.addEventListener('input', run);
+    const sb = document.getElementById('searchBtn');
+    if (sb) sb.addEventListener('click', run);
+
+    /* ── Stars ── */
+    const ratings = {};
+    document.querySelectorAll('.star-row').forEach(row => {
+        const id    = row.dataset.id;
+        const stars = row.querySelectorAll('.star');
+        const hint  = row.querySelector('.star-hint');
+
+        function draw(h, s) {
+            stars.forEach(x => {
+                const v = +x.dataset.v;
+                x.classList.remove('on','preview');
+                if (s && v <= s) x.classList.add('on');
+                else if (h && v <= h) x.classList.add('preview');
+            });
+        }
+
+        stars.forEach(s => {
+            s.addEventListener('mouseenter', () => draw(+s.dataset.v, ratings[id]||0));
+            s.addEventListener('mouseleave', () => draw(0, ratings[id]||0));
+            s.addEventListener('click', () => {
+                ratings[id] = +s.dataset.v;
+                draw(0, ratings[id]);
+                if (hint) hint.textContent = ratings[id] + '/5';
+            });
+        });
+    });
+
+    /* ── Save toggle ── */
+    document.querySelectorAll('.save-btn').forEach(b => {
+        b.addEventListener('click', () => {
+            const on = b.classList.toggle('saved');
+            b.innerHTML = on ? '&#9829;' : '&#9825;';
+        });
+    });
+})();
+</script>
+{% endblock %}
