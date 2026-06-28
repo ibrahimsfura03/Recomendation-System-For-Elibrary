@@ -133,6 +133,8 @@ function deleteBook(bookId) {
                     if (d.success) {
                         showSuccessModal('Book deleted successfully');
                         setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal('Error deleting book');
                     }
                 });
         }

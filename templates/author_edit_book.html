@@ -70,6 +70,41 @@
                             <textarea class="form-control" name="description" rows="5">{{ book.get('description', '') }}</textarea>
                         </div>
 
+                        <!-- Current Cover Display -->
+                        {% if book.get('cover_image') %}
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-image"></i> Current Cover</label>
+                            <div class="bg-light p-3 rounded mb-2" style="height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                <img src="{{ book.cover_image }}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ book.title }}">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Upload New Cover -->
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-image"></i> Replace Cover Image (Optional)</label>
+                            <input type="file" class="form-control" name="cover_image" accept="image/*">
+                            <small class="text-muted">JPG, PNG (max 10MB). Leave empty to keep current cover.</small>
+                        </div>
+
+                        <!-- Current Book File Display -->
+                        {% if book.get('book_file') %}
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-file"></i> Current Book File</label>
+                            <div class="alert alert-info mb-2">
+                                <i class="fas fa-file-pdf"></i> File: <code>{{ book.book_file.split('/')[-1] if book.book_file else 'N/A' }}</code>
+                                <br><a href="{{ book.book_file }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-download"></i> Download</a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Upload New Book File -->
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-file-pdf"></i> Replace Book File (Optional)</label>
+                            <input type="file" class="form-control" name="book_file" accept=".pdf,.docx">
+                            <small class="text-muted">PDF or DOCX (max 10MB). Leave empty to keep current file.</small>
+                        </div>
+
                         {% if book.get('status') == 'rejected' %}
                         <div class="alert alert-warning mb-3">
                             <i class="fas fa-exclamation-triangle"></i> <strong>Rejection Reason:</strong><br>

@@ -73,11 +73,11 @@
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
                                             {% if user.get('status') != 'suspended' %}
-                                            <button type="button" class="btn btn-warning" onclick="if(confirm('Suspend this user?')) { fetch('/api/admin/suspend-user/{{ user.user_id }}', {method:'POST'}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Suspend">
+                                            <button type="button" class="btn btn-warning" onclick="suspendUser('{{ user.user_id }}')" title="Suspend">
                                                 <i class="fas fa-ban"></i>
                                             </button>
                                             {% endif %}
-                                            <button type="button" class="btn btn-danger" onclick="if(confirm('Delete this user?')) { fetch('/api/admin/delete-user/{{ user.user_id }}', {method:'POST'}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Delete">
+                                            <button type="button" class="btn btn-danger" onclick="deleteUser('{{ user.user_id }}')" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -95,5 +95,43 @@
         </div>
     </div>
 </div>
+
+<script>
+function suspendUser(userId) {
+    showConfirmModal(
+        '<i class="fas fa-ban"></i> <strong>Suspend User?</strong><br><small>This user will be suspended and unable to access their account.</small>',
+        function() {
+            fetch('/api/admin/suspend-user/' + userId, {method: 'POST'})
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        showSuccessModal('User suspended successfully');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal('Error suspending user');
+                    }
+                });
+        }
+    );
+}
+
+function deleteUser(userId) {
+    showConfirmModal(
+        '<i class="fas fa-trash"></i> <strong>Delete User?</strong><br><small class="text-danger">This action cannot be undone. All user data will be permanently deleted.</small>',
+        function() {
+            fetch('/api/admin/delete-user/' + userId, {method: 'POST'})
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        showSuccessModal('User deleted successfully');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal('Error deleting user');
+                    }
+                });
+        }
+    );
+}
+</script>
 
 {% endblock %}

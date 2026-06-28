@@ -73,14 +73,14 @@
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
                                             {% if book.get('status') == 'pending' %}
-                                            <button type="button" class="btn btn-success" onclick="if(confirm('Approve this book?')) { fetch('/api/admin/approve-book/{{ book.book_id }}', {method:'POST'}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Approve">
+                                            <button type="button" class="btn btn-success" onclick="approveBook('{{ book.book_id }}')" title="Approve">
                                                 <i class="fas fa-check"></i>
                                             </button>
-                                            <button type="button" class="btn btn-danger" onclick="var reason=prompt('Reason for rejection:'); if(reason) { fetch('/api/admin/reject-book/{{ book.book_id }}', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({reason:reason})}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Reject">
+                                            <button type="button" class="btn btn-danger" onclick="rejectBook('{{ book.book_id }}')" title="Reject">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                             {% endif %}
-                                            <button type="button" class="btn btn-danger" onclick="if(confirm('Delete this book?')) { fetch('/api/admin/delete-book/{{ book.book_id }}', {method:'POST'}).then(r=>r.json()).then(d=>{if(d.success) location.reload(); else alert('Error');}); }" title="Delete">
+                                            <button type="button" class="btn btn-danger" onclick="deleteBook('{{ book.book_id }}')" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -98,5 +98,70 @@
         </div>
     </div>
 </div>
+
+<script>
+function approveBook(bookId) {
+    showConfirmModal(
+        '<i class="fas fa-check-circle"></i> <strong>Approve Book?</strong><br><small>It will be published and visible to users.</small>',
+        function() {
+            fetch('/api/admin/approve-book/' + bookId, {method: 'POST'})
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        showSuccessModal('Book approved successfully');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal('Error approving book');
+                    }
+                });
+        }
+    );
+}
+
+function rejectBook(bookId) {
+    showConfirmModal(
+        '<i class="fas fa-times-circle"></i> <strong>Reject Book?</strong><br><label class="form-label mt-3">Reason for rejection:</label><textarea class="form-control form-control-sm" id="rejectBookReason" placeholder="Enter reason..." rows="2"></textarea>',
+        function() {
+            const reason = document.getElementById('rejectBookReason').value.trim();
+            if (!reason) {
+                showErrorModal('Please enter a reason for rejection');
+                return;
+            }
+            fetch('/api/admin/reject-book/' + bookId, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({reason: reason})
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    showSuccessModal('Book rejected successfully');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showErrorModal('Error rejecting book');
+                }
+            });
+        }
+    );
+}
+
+function deleteBook(bookId) {
+    showConfirmModal(
+        '<i class="fas fa-trash"></i> <strong>Delete Book?</strong><br><small class="text-danger">This action cannot be undone.</small>',
+        function() {
+            fetch('/api/admin/delete-book/' + bookId, {method: 'POST'})
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        showSuccessModal('Book deleted successfully');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal('Error deleting book');
+                    }
+                });
+        }
+    );
+}
+</script>
 
 {% endblock %}

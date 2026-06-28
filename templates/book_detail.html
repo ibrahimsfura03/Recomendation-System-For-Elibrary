@@ -111,8 +111,12 @@
         {% for rec in recommendations %}
         <div class="col-md-3 mb-3">
             <div class="card h-100 border-0 shadow-sm" style="border-top: 4px solid #667eea;">
-                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
-                    <div style="font-size: 2rem; color: #ccc;"><i class="fas fa-book"></i></div>
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 120px; overflow: hidden;">
+                    {% if rec.get('cover_image') %}
+                        <img src="{{ rec.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ rec.title }}">
+                    {% else %}
+                        <div style="font-size: 2rem; color: #ccc;"><i class="fas fa-book"></i></div>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     <h6 class="card-title">{{ rec.title[:30] }}</h6>

@@ -88,10 +88,14 @@
                 {% for book in recommendations %}
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #667eea;">
-                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <div class="text-center text-muted">
-                                <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
-                            </div>
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
+                            {% if book.get('cover_image') %}
+                                <img src="{{ book.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ book.title }}">
+                            {% else %}
+                                <div class="text-center text-muted">
+                                    <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="card-body">
                             <h6 class="card-title">{{ book.title[:35] }}</h6>
@@ -114,10 +118,14 @@
                 {% for book in saved_books[:6] %}
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #28a745;">
-                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <div class="text-center text-muted">
-                                <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
-                            </div>
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
+                            {% if book.get('cover_image') %}
+                                <img src="{{ book.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ book.title }}">
+                            {% else %}
+                                <div class="text-center text-muted">
+                                    <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="card-body">
                             <h6 class="card-title">{{ book.title[:35] }}</h6>
@@ -144,10 +152,14 @@
                 {% for book in recent_books %}
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #ffc107;">
-                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <div class="text-center text-muted">
-                                <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
-                            </div>
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
+                            {% if book.get('cover_image') %}
+                                <img src="{{ book.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ book.title }}">
+                            {% else %}
+                                <div class="text-center text-muted">
+                                    <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="card-body">
                             <h6 class="card-title">{{ book.title[:35] }}</h6>

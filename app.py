@@ -744,14 +744,30 @@ def edit_book(book_id):
         description = request.form.get("description", "").strip()
         category = request.form.get("category", "").strip()
         
+        update_data = {
+            "title": title,
+            "description": description,
+            "category": category,
+            "updated_at": datetime.now()
+        }
+        
+        # Handle cover image replacement
+        cover_file = request.files.get('cover_image')
+        if cover_file and cover_file.filename != '':
+            cover_filename = save_uploaded_file(cover_file)
+            if cover_filename:
+                update_data["cover_image"] = f"/uploads/{cover_filename}"
+        
+        # Handle book file replacement
+        book_file = request.files.get('book_file')
+        if book_file and book_file.filename != '':
+            book_filename = save_uploaded_file(book_file)
+            if book_filename:
+                update_data["book_file"] = f"/uploads/{book_filename}"
+        
         db.books.update_one(
             {"book_id": book_id},
-            {"$set": {
-                "title": title,
-                "description": description,
-                "category": category,
-                "updated_at": datetime.now()
-            }}
+            {"$set": update_data}
         )
         return redirect(url_for("author_my_books"))
     
