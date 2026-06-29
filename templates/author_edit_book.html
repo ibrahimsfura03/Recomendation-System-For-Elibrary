@@ -1,129 +1,111 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 mb-4">
-            <div class="card mb-3 border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="card-title"><i class="fas fa-pen-fancy"></i> Author</h6>
-                    <p class="card-text small text-muted">Manage Your Books</p>
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="form-container">
+    <h2 class="mb-4"><i class="fas fa-edit"></i> Edit Book</h2>
+
+    <div class="form-section">
+        <form action="/author/edit-book/{{ book.book_id }}" method="POST">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-info-circle"></i> Book ID (Read-only)</label>
+                    <input type="text" class="form-control" value="{{ book.book_id }}" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-tag"></i> Status</label>
+                    <input type="text" class="form-control" value="{{ book.get('status', 'pending') }}" disabled>
                 </div>
             </div>
 
-            <div class="list-group">
-                <a href="/author/dashboard" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a href="/author/upload-book" class="list-group-item list-group-item-action">
-                    <i class="fas fa-upload"></i> Upload Book
-                </a>
-                <a href="/author/my-books" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-book"></i> My Books
-                </a>
-                <a href="/logout" class="list-group-item list-group-item-action text-danger">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-heading"></i> Book Title *</label>
+                <input type="text" class="form-control" name="title" value="{{ book.title }}" required>
             </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="col-md-9">
-            <h2 class="mb-4"><i class="fas fa-edit"></i> Edit Book</h2>
-
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <form action="/author/edit-book/{{ book.book_id }}" method="POST">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="fas fa-info-circle"></i> Book ID (Read-only)</label>
-                                <input type="text" class="form-control" value="{{ book.book_id }}" disabled>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="fas fa-tag"></i> Status</label>
-                                <input type="text" class="form-control" value="{{ book.get('status', 'pending') }}" disabled>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-heading"></i> Book Title *</label>
-                            <input type="text" class="form-control" name="title" value="{{ book.title }}" required>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"><i class="fas fa-tag"></i> Category *</label>
-                                <select class="form-select" name="category" required>
-                                    <option value="">Select a category...</option>
-                                    {% if categories %}
-                                        {% for cat in categories %}
-                                        <option value="{{ cat }}" {% if cat == book.category %}selected{% endif %}>{{ cat }}</option>
-                                        {% endfor %}
-                                    {% endif %}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-align-left"></i> Description</label>
-                            <textarea class="form-control" name="description" rows="5">{{ book.get('description', '') }}</textarea>
-                        </div>
-
-                        <!-- Current Cover Display -->
-                        {% if book.get('cover_image') %}
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-image"></i> Current Cover</label>
-                            <div class="bg-light p-3 rounded mb-2" style="height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                <img src="{{ book.cover_image }}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ book.title }}">
-                            </div>
-                        </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><i class="fas fa-tag"></i> Category *</label>
+                    <select class="form-select" name="category" required>
+                        <option value="">Select a category...</option>
+                        {% if categories %}
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if cat == book.category %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
                         {% endif %}
-
-                        <!-- Upload New Cover -->
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-image"></i> Replace Cover Image (Optional)</label>
-                            <input type="file" class="form-control" name="cover_image" accept="image/*">
-                            <small class="text-muted">JPG, PNG (max 10MB). Leave empty to keep current cover.</small>
-                        </div>
-
-                        <!-- Current Book File Display -->
-                        {% if book.get('book_file') %}
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-file"></i> Current Book File</label>
-                            <div class="alert alert-info mb-2">
-                                <i class="fas fa-file-pdf"></i> File: <code>{{ book.book_file.split('/')[-1] if book.book_file else 'N/A' }}</code>
-                                <br><a href="{{ book.book_file }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-download"></i> Download</a>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Upload New Book File -->
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-file-pdf"></i> Replace Book File (Optional)</label>
-                            <input type="file" class="form-control" name="book_file" accept=".pdf,.docx">
-                            <small class="text-muted">PDF or DOCX (max 10MB). Leave empty to keep current file.</small>
-                        </div>
-
-                        {% if book.get('status') == 'rejected' %}
-                        <div class="alert alert-warning mb-3">
-                            <i class="fas fa-exclamation-triangle"></i> <strong>Rejection Reason:</strong><br>
-                            {{ book.get('reason', 'No reason provided') }}
-                        </div>
-                        {% endif %}
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
-                            <a href="/author/my-books" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left"></i> Back to My Books
-                            </a>
-                        </div>
-                    </form>
+                    </select>
                 </div>
             </div>
-        </div>
+
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-align-left"></i> Description</label>
+                <textarea class="form-control" name="description" rows="5">{{ book.get('description', '') }}</textarea>
+            </div>
+
+            <!-- Current Cover Display -->
+            {% if book.get('cover_image') %}
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-image"></i> Current Cover</label>
+                <div class="bg-light p-3 rounded mb-2" style="height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <img src="{{ book.cover_image }}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ book.title }}">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Upload New Cover -->
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-image"></i> Replace Cover Image (Optional)</label>
+                <input type="file" class="form-control" name="cover_image" accept="image/*">
+                <small class="text-muted">JPG, PNG (max 10MB). Leave empty to keep current cover.</small>
+            </div>
+
+            <!-- Current Book File Display -->
+            {% if book.get('book_file') %}
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-file"></i> Current Book File</label>
+                <div class="alert alert-info mb-2">
+                    <i class="fas fa-file-pdf"></i> File: <code>{{ book.book_file.split('/')[-1] if book.book_file else 'N/A' }}</code>
+                    <br><a href="{{ book.book_file }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Upload New Book File -->
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-file-pdf"></i> Replace Book File (Optional)</label>
+                <input type="file" class="form-control" name="book_file" accept=".pdf,.docx">
+                <small class="text-muted">PDF or DOCX (max 10MB). Leave empty to keep current file.</small>
+            </div>
+
+            {% if book.get('status') == 'rejected' %}
+            <div class="alert alert-warning mb-3">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Rejection Reason:</strong><br>
+                {{ book.get('reason', 'No reason provided') }}
+            </div>
+            {% endif %}
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-lg text-white" style="background-color: var(--primary-teal);">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="/author/my-books" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to My Books
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

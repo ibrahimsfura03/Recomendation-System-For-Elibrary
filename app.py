@@ -521,7 +521,11 @@ def reject_author(author_id):
 @admin_required
 def manage_users():
     db = get_db()
-    users = list(db.users.find({}))
+    # Only show users with activity (saved books or reading history)
+    users = list(db.users.find({"$or": [
+        {"saved_books": {"$exists": True, "$ne": []}},
+        {"reading_history": {"$exists": True, "$ne": []}}
+    ]}).sort("joined_date", -1))
     return render_template("admin_manage_users.html", users=users)
 
 @app.route("/admin/manage-authors")

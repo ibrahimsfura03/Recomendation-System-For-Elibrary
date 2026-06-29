@@ -1,121 +1,121 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 mb-4">
-            <div class="card mb-3 border-0 shadow-sm" style="border-top: 3px solid #dc3545 !important;">
-                <div class="card-body">
-                    <h6 class="card-title text-danger"><i class="fas fa-shield-alt"></i> Admin Panel</h6>
-                    <p class="card-text small text-muted">System Administration</p>
-                </div>
-            </div>
+<style>
+    .dashboard-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-teal);
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .section-title {
+        color: var(--primary-teal);
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+    }
+    
+    .dashboard-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .item-card {
+        padding: 1rem;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 
-            <div class="list-group">
-                <a href="/admin/dashboard" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a href="/admin/manage-users" class="list-group-item list-group-item-action">
-                    <i class="fas fa-users"></i> Manage Users
-                </a>
-                <a href="/admin/manage-authors" class="list-group-item list-group-item-action">
-                    <i class="fas fa-user-tie"></i> Manage Authors
-                </a>
-                <a href="/admin/manage-books" class="list-group-item list-group-item-action">
-                    <i class="fas fa-book"></i> Manage Books
-                </a>
-                <a href="/logout" class="list-group-item list-group-item-action text-danger">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+<div class="dashboard-content">
+    <h2 class="mb-4"><i class="fas fa-chart-line"></i> System Dashboard</h2>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_users }}</div>
+                <div class="stat-label"><i class="fas fa-user-circle"></i> Users</div>
             </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="col-md-9">
-        <h2 class="mb-4 text-danger"><i class="fas fa-chart-line"></i> System Dashboard</h2>
-
-        <!-- Statistics -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm" style="border-top: 4px solid #667eea;">
-                    <div class="card-body text-center">
-                        <h3 class="card-title text-primary mb-2">{{ stats.total_users }}</h3>
-                        <p class="card-text text-muted"><i class="fas fa-user-circle"></i> Users</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm" style="border-top: 4px solid #17a2b8;">
-                    <div class="card-body text-center">
-                        <h3 class="card-title text-info mb-2">{{ stats.total_authors }}</h3>
-                        <p class="card-text text-muted"><i class="fas fa-pen"></i> Authors</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm" style="border-top: 4px solid #28a745;">
-                    <div class="card-body text-center">
-                        <h3 class="card-title text-success mb-2">{{ stats.total_books }}</h3>
-                        <p class="card-text text-muted"><i class="fas fa-book"></i> Books</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm" style="border-top: 4px solid #ffc107;">
-                    <div class="card-body text-center">
-                        <h3 class="card-title text-warning mb-2">{{ stats.total_ratings }}</h3>
-                        <p class="card-text text-muted"><i class="fas fa-star"></i> Ratings</p>
-                    </div>
-                </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_authors }}</div>
+                <div class="stat-label"><i class="fas fa-pen"></i> Authors</div>
             </div>
         </div>
-
-        <!-- Pending Items -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-3 border-0 shadow-sm" style="border-left: 4px solid #ffc107;">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0"><i class="fas fa-hourglass-half"></i> Pending Authors <span class="badge bg-warning">{{ stats.pending_authors }}</span></h5>
-                    </div>
-                    <div class="card-body">
-                        {% if pending_authors %}
-                        <div class="list-group">
-                            {% for author in pending_authors %}
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">{{ author.full_name }}</h6>
-                                        <p class="mb-1 small text-muted">{{ author.email }}</p>
-                                        <p class="mb-0 small">{{ author.get('institution', 'N/A') }}</p>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm btn-success" onclick="approveAuthor('{{ author.author_id }}')" title="Approve"><i class="fas fa-check"></i></button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="rejectAuthor('{{ author.author_id }}')" title="Reject"><i class="fas fa-times"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        <p class="text-muted small mb-0"><i class="fas fa-check-circle"></i> No pending authors</p>
-                        {% endif %}
-                    </div>
-                </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_books }}</div>
+                <div class="stat-label"><i class="fas fa-book"></i> Books</div>
             </div>
-
-            <div class="col-md-6">
-                <div class="card mb-3 border-0 shadow-sm" style="border-left: 4px solid #dc3545;">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0"><i class="fas fa-hourglass-half"></i> Pending Books <span class="badge bg-warning">{{ stats.pending_books }}</span></h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted small mb-0"><i class="fas fa-info-circle"></i> Manage pending books from the "Manage Books" page</p>
-                    </div>
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_ratings }}</div>
+                <div class="stat-label"><i class="fas fa-star"></i> Ratings</div>
             </div>
         </div>
     </div>
+
+    <!-- Pending Items -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h4 class="section-title"><i class="fas fa-hourglass-half"></i> Pending Authors <span class="badge" style="background-color: #ffc107; color: #333;">{{ stats.pending_authors }}</span></h4>
+                {% if pending_authors %}
+                <div>
+                    {% for author in pending_authors %}
+                    <div class="item-card">
+                        <div>
+                            <strong>{{ author.full_name }}</strong>
+                            <p class="mb-0 small text-muted">{{ author.email }}</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm text-white" style="background-color: var(--primary-teal);" onclick="approveAuthor('{{ author.author_id }}')"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="rejectAuthor('{{ author.author_id }}')"><i class="fas fa-times"></i> Reject</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0"><i class="fas fa-check-circle"></i> No pending authors</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h4 class="section-title"><i class="fas fa-hourglass-half"></i> Pending Books <span class="badge" style="background-color: #ffc107; color: #333;">{{ stats.pending_books }}</span></h4>
+                <p class="text-muted"><i class="fas fa-info-circle"></i> Manage pending books from the "Manage Books" menu option</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -139,30 +139,22 @@ function approveAuthor(authorId) {
 }
 
 function rejectAuthor(authorId) {
-    showConfirmModal(
-        '<i class="fas fa-times-circle"></i> <strong>Reject Author?</strong><br><label class="form-label mt-3">Reason for rejection:</label><textarea class="form-control form-control-sm" id="rejectReason" placeholder="Enter reason..." rows="2"></textarea>',
-        function() {
-            const reason = document.getElementById('rejectReason').value.trim();
-            if (!reason) {
-                showErrorModal('Please enter a reason for rejection');
-                return;
+    showRejectionModal(function(reason) {
+        fetch('/api/reject-author/' + authorId, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({reason: reason})
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                showSuccessModal('Author rejected successfully');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showErrorModal('Error rejecting author');
             }
-            fetch('/api/reject-author/' + authorId, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({reason: reason})
-            })
-            .then(r => r.json())
-            .then(d => {
-                if (d.success) {
-                    showSuccessModal('Author rejected successfully');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showErrorModal('Error rejecting author');
-                }
-            });
-        }
-    );
+        });
+    });
 }
 </script>
 

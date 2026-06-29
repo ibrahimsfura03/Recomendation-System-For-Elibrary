@@ -37,7 +37,8 @@ python -c "import flask, pandas, sklearn, surprise; print('✓ All packages inst
 
 ### Option 1: Web App (Main)
 ```bash
-python app.py
+
+
 # Open browser: http://localhost:5000
 ```
 

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .settings-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .settings-title {
+        color: var(--primary-teal);
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+        border-bottom: 2px solid var(--primary-teal);
+        padding-bottom: 0.5rem;
+    }
+</style>
+
+<div class="settings-container">
+    <h2 class="mb-4 text-center" style="color: var(--primary-teal);"><i class="fas fa-cog"></i> User Settings</h2>
+
+    {% if success_message %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ success_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ error_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <!-- Account Settings -->
+    <div class="settings-section">
+        <h4 class="settings-title">Account Information</h4>
+
+        <form action="/settings" method="POST">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" name="full_name" value="{{ user.get('full_name', '') }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" name="username" value="{{ user.get('username', '') }}" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" value="{{ user.get('email', '') }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone (Optional)</label>
+                <input type="tel" class="form-control" name="phone" value="{{ user.get('phone', '') }}">
+            </div>
+
+            <button type="submit" class="btn text-white" style="background-color: var(--primary-teal);">Save Changes</button>
+        </form>
+    </div>
+
+    <!-- Change Password -->
+    <div class="settings-section">
+        <h4 class="settings-title">Change Password</h4>
+
+        <form action="/settings/change-password" method="POST">
+            <div class="mb-3">
+                <label class="form-label">Current Password</label>
+                <input type="password" class="form-control" name="current_password" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">New Password</label>
+                <input type="password" class="form-control" name="new_password" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" class="form-control" name="confirm_password" required>
+            </div>
+
+            <button type="submit" class="btn text-white" style="background-color: var(--primary-teal);">Update Password</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

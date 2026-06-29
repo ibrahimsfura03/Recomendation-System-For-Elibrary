@@ -1,182 +1,120 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar for Dashboard Navigation -->
-        <div class="col-md-3 mb-4">
-            <div class="card mb-3 border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="card-title"><i class="fas fa-user"></i> Profile</h6>
-                    <p class="card-text">
-                        <strong>{{ user.full_name }}</strong><br>
-                        <small class="text-muted">@{{ user.username }}</small><br>
-                        <small class="text-muted">{{ user.email }}</small>
-                    </p>
-                    <p class="card-text small text-muted">
-                        Joined {% if user.joined_date %}{{ user.joined_date.strftime('%B %Y') }}{% else %}Recently{% endif %}
-                    </p>
-                </div>
-            </div>
+<style>
+    .dashboard-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        color: var(--primary-teal);
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+    }
+    
+    .card-book {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+        height: 100%;
+    }
+    
+    .card-book:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .book-thumb {
+        height: 150px;
+        background: #f0f0f0;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    
+    .book-thumb i {
+        font-size: 2.5rem;
+        color: #999;
+    }
+</style>
 
-            <div class="list-group">
-                <a href="/user/dashboard" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a href="#saved" class="list-group-item list-group-item-action">
-                    <i class="fas fa-bookmark"></i> Saved Books ({{ saved_books|length }})
-                </a>
-                <a href="#history" class="list-group-item list-group-item-action">
-                    <i class="fas fa-history"></i> Reading History ({{ reading_history|length }})
-                </a>
-                <a href="/books" class="list-group-item list-group-item-action">
-                    <i class="fas fa-book"></i> Browse All Books
-                </a>
-                <a href="/logout" class="list-group-item list-group-item-action text-danger">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </div>
+<div style="max-width: 1200px; margin: 0 auto;">
+    <div class="dashboard-section">
+        <h2 class="mb-0">Welcome, {{ user.full_name }}! <span class="badge" style="background-color: #2fa5a5; color: white;"><i class="fas fa-check-circle"></i> Logged In</span></h2>
+    </div>
 
-        <!-- Main Content -->
-        <div class="col-md-9">
-            <h2 class="mb-4">Welcome, {{ user.full_name }}! <span class="badge bg-success"><i class="fas fa-check-circle"></i> Logged In</span></h2>
+    {% if notifications %}
+    <div class="dashboard-section" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+        <i class="fas fa-exclamation-circle"></i> <strong>{{ notifications|length }} Notification(s)</strong>
+    </div>
+    {% endif %}
 
-            {% if notifications %}
-            <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
-                <i class="fas fa-bell"></i> <strong>{{ notifications|length }} Notification(s)</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endif %}
-
-            <!-- User Stats Cards -->
-            <div class="row mb-5">
-                <div class="col-md-4 mb-3">
-                    <div class="card border-0 shadow-sm" style="border-top: 4px solid #667eea;">
-                        <div class="card-body text-center">
-                            <h3 class="text-primary mb-2"><i class="fas fa-bookmark"></i> {{ saved_books|length }}</h3>
-                            <p class="text-muted mb-0">Saved Books</p>
-                        </div>
+    <!-- Recommendations Section -->
+    {% if recommendations %}
+    <div class="dashboard-section">
+        <h4 class="section-title"><i class="fas fa-wand-magic-sparkles"></i> Recommended For You</h4>
+        <div class="row">
+            {% for book in recommendations %}
+            <div class="col-md-4 mb-3">
+                <div class="card card-book">
+                    <div class="book-thumb">
+                        {% if book.get('cover_image') %}
+                            <img src="{{ book.cover_image }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ book.title }}">
+                        {% else %}
+                            <i class="fas fa-book"></i>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title">{{ book.title[:35] }}</h6>
+                        <p class="card-text small text-muted">{{ book.author }}</p>
+                        <p class="card-text small"><span class="badge" style="background-color: #2fa5a5; color: white;">{{ "%.1f"|format(book.score) }}/10</span></p>
+                        <a href="/book/{{ book.book_id }}" class="btn btn-sm w-100 text-white" style="background-color: var(--primary-teal);"><i class="fas fa-eye"></i> View</a>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card border-0 shadow-sm" style="border-top: 4px solid #28a745;">
-                        <div class="card-body text-center">
-                            <h3 class="text-success mb-2"><i class="fas fa-book-reader"></i> {{ reading_history|length }}</h3>
-                            <p class="text-muted mb-0">Books Read</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card border-0 shadow-sm" style="border-top: 4px solid #ffc107;">
-                        <div class="card-body text-center">
-                            <h3 class="text-warning mb-2"><i class="fas fa-star"></i> 4.5</h3>
-                            <p class="text-muted mb-0">Avg Rating</p>
-                        </div>
-                    </div>
-                </div>
             </div>
-
-        <!-- Recommendations Section -->
-        {% if recommendations %}
-        <div class="mb-5">
-            <div class="d-flex align-items-center mb-3">
-                <h4 class="mb-0"><i class="fas fa-wand-magic-sparkles"></i> Recommended For You</h4>
-                <span class="badge bg-primary ms-2">AI Powered</span>
-            </div>
-            <div class="row">
-                {% for book in recommendations %}
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #667eea;">
-                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
-                            {% if book.get('cover_image') %}
-                                <img src="{{ book.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ book.title }}">
-                            {% else %}
-                                <div class="text-center text-muted">
-                                    <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="card-body">
-                            <h6 class="card-title">{{ book.title[:35] }}</h6>
-                            <p class="card-text small text-muted">{{ book.author }}</p>
-                            <p class="card-text small"><span class="badge bg-success">{{ "%.1f"|format(book.score) }}/10</span></p>
-                            <a href="/book/{{ book.book_id }}" class="btn btn-sm btn-primary w-100"><i class="fas fa-eye"></i> View</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Saved Books -->
-        <div class="mb-5" id="saved">
-            <h4 class="mb-3"><i class="fas fa-bookmark"></i> Saved Books ({{ saved_books|length }})</h4>
-            {% if saved_books %}
-            <div class="row">
-                {% for book in saved_books[:6] %}
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #28a745;">
-                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
-                            {% if book.get('cover_image') %}
-                                <img src="{{ book.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ book.title }}">
-                            {% else %}
-                                <div class="text-center text-muted">
-                                    <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="card-body">
-                            <h6 class="card-title">{{ book.title[:35] }}</h6>
-                            <p class="card-text small text-muted">{{ book.author }}</p>
-                            <div class="d-flex gap-2">
-                                <a href="/book/{{ book.book_id }}" class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-book-open"></i> Read</a>
-                                <button class="btn btn-sm btn-outline-danger" onclick="showConfirmModal('<i class=\"fas fa-trash\"></i> <strong>Remove from saved?</strong>', function() { unsaveBook('{{ book.book_id }}'); })"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="alert alert-info"><i class="fas fa-bookmark"></i> No saved books yet</div>
-            {% endif %}
-        </div>
-
-        <!-- Recent Books -->
-        <div id="history">
-            <h4 class="mb-3"><i class="fas fa-history"></i> Recently Added</h4>
-            {% if recent_books %}
-            <div class="row">
-                {% for book in recent_books %}
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #ffc107;">
-                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px; overflow: hidden;">
-                            {% if book.get('cover_image') %}
-                                <img src="{{ book.cover_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ book.title }}">
-                            {% else %}
-                                <div class="text-center text-muted">
-                                    <div style="font-size: 2rem;"><i class="fas fa-book"></i></div>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="card-body">
-                            <h6 class="card-title">{{ book.title[:35] }}</h6>
-                            <p class="card-text small text-muted">{{ book.author }}</p>
-                            <p class="card-text small"><span class="badge bg-warning text-dark">{{ book.category }}</span></p>
-                            <a href="/book/{{ book.book_id }}" class="btn btn-sm btn-primary w-100"><i class="fas fa-eye"></i> View</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+            {% endfor %}
         </div>
     </div>
-</div>
+    {% endif %}
 
-<script>
-// Uses unsaveBook from base.html with modal confirmation
-</script>
+    <!-- Saved Books -->
+    <div class="dashboard-section" id="saved">
+        <h4 class="section-title"><i class="fas fa-bookmark"></i> Saved Books ({{ saved_books|length }})</h4>
+        {% if saved_books %}
+        <div class="row">
+            {% for book in saved_books[:6] %}
+            <div class="col-md-4 mb-3">
+                <div class="card card-book">
+                    <div class="book-thumb">
+                        {% if book.get('cover_image') %}
+                            <img src="{{ book.cover_image }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ book.title }}">
+                        {% else %}
+                            <i class="fas fa-book"></i>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title">{{ book.title[:35] }}</h6>
+                        <p class="card-text small text-muted">{{ book.author }}</p>
+                        <div class="d-flex gap-2">
+                            <a href="/book/{{ book.book_id }}" class="btn btn-sm flex-grow-1 text-white" style="background-color: var(--primary-teal);"><i class="fas fa-book-open"></i> Read</a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="unsaveBook('{{ book.book_id }}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info"><i class="fas fa-bookmark"></i> No saved books yet</div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

@@ -339,6 +339,32 @@ def get_books_by_category(category, dataset="set2"):
 
 def get_all_categories(dataset="set2"):
     database = get_db()
-    categories = database.books.distinct("category", {"dataset": dataset})
-    return sorted(categories)
+    # Get categories from existing books
+    categories = database.books.distinct("category")
+    
+    # Default categories to offer to authors
+    default_categories = [
+        "Fiction",
+        "Non-Fiction",
+        "Science",
+        "History",
+        "Biography",
+        "Romance",
+        "Mystery",
+        "Thriller",
+        "Fantasy",
+        "Science Fiction",
+        "Self-Help",
+        "Business",
+        "Technology",
+        "Education",
+        "Children",
+        "Poetry",
+        "Drama",
+        "Art & Design"
+    ]
+    
+    # Combine existing categories with defaults, remove duplicates
+    all_cats = list(set(categories + default_categories))
+    return sorted(all_cats)
 

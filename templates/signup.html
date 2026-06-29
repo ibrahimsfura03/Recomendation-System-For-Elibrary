@@ -1,11 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6 mx-auto">
-        <div class="card">
+<style>
+    .signup-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 60px);
+    }
+    
+    .signup-card {
+        width: 100%;
+        max-width: 450px;
+    }
+</style>
+
+<div class="signup-wrapper">
+    <div class="signup-card">
+        <div class="card border-0 shadow">
             <div class="card-body p-4">
-                <h3 class="card-title mb-4">Create Account</h3>
+                <h3 class="card-title mb-4 text-center" style="color: var(--primary-teal);">Create Account</h3>
 
                 {% if errors %}
                     {% for err in errors %}
@@ -54,13 +68,13 @@
                         <input type="password" class="form-control" name="confirm_password" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
+                    <button type="submit" class="btn w-100 mb-3 text-white" style="background-color: var(--primary-teal);">Create Account</button>
                 </form>
 
                 <hr>
 
                 <p class="text-center text-muted mb-0">
-                    Already have an account? <a href="/login">Login here</a>
+                    Already have an account? <a href="/login" style="color: var(--primary-teal);">Login here</a>
                 </p>
             </div>
         </div>
