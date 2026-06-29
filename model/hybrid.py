@@ -1,19 +1,30 @@
-from model.recommender import recommend
-from model.content_based import train_content_model, recommend_similar_books
+try:
+    from model.recommender import recommend
+except Exception as e:
+    print(f"Warning: KNN recommendation module unavailable: {e}")
+    recommend = None
+
+try:
+    from model.content_based import train_content_model, recommend_similar_books
+except Exception as e:
+    print(f"Warning: content-based recommendation module unavailable: {e}")
+    train_content_model = None
+    recommend_similar_books = None
+
 from database.db import get_books_by_dataset, save_recommendation_history
 
 def hybrid_recommend(user_id, dataset_name, target_book_id=None):
 
     books = get_books_by_dataset(dataset_name)
-    similarity = train_content_model(books)
 
     content_scores = {}
-    if target_book_id:
+    if target_book_id and train_content_model and recommend_similar_books:
+        similarity = train_content_model(books)
         content_results = recommend_similar_books(target_book_id, books, similarity)
         for r in content_results:
             content_scores[r["book_id"]] = r["score"]
 
-    knn_results = recommend(user_id, dataset_name)
+    knn_results = recommend(user_id, dataset_name) if recommend else []
 
     final_scores = {}
 

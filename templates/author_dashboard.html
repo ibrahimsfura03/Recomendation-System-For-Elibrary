@@ -126,7 +126,7 @@ function deleteBook(bookId) {
     showConfirmModal(
         '<i class="fas fa-trash"></i> <strong>Delete Book?</strong><br><small class="text-danger">This action cannot be undone.</small>',
         function() {
-            fetch('/api/author/delete-book/' + bookId, {method: 'POST'})
+            fetch('/api/author/delete-book/' + bookId, {method: 'POST', credentials: 'same-origin'})
                 .then(r => {
                     if (!r.ok) throw new Error('Server error: ' + r.status);
                     return r.json();

@@ -360,10 +360,27 @@
         let pendingBookId = null;
         let pendingRejectionAction = null;
 
+        function isBootstrapAvailable() {
+            return typeof bootstrap !== 'undefined' && typeof bootstrap.Modal === 'function';
+        }
+
+        function sanitizeText(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            return div.textContent || div.innerText || '';
+        }
+
         function showConfirmModal(message, action) {
-            document.getElementById('modalBody').innerHTML = message;
-            pendingAction = action;
-            new bootstrap.Modal(document.getElementById('confirmModal')).show();
+            if (isBootstrapAvailable()) {
+                document.getElementById('modalBody').innerHTML = message;
+                pendingAction = action;
+                new bootstrap.Modal(document.getElementById('confirmModal')).show();
+            } else {
+                const confirmed = window.confirm(sanitizeText(message));
+                if (confirmed && typeof action === 'function') {
+                    action();
+                }
+            }
         }
 
         function executeAction() {
@@ -373,19 +390,36 @@
         }
 
         function showSuccessModal(message) {
-            document.getElementById('successBody').innerHTML = message;
-            new bootstrap.Modal(document.getElementById('successModal')).show();
+            if (isBootstrapAvailable()) {
+                document.getElementById('successBody').innerHTML = message;
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            } else {
+                window.alert(message);
+            }
         }
 
         function showErrorModal(message) {
-            document.getElementById('errorBody').innerHTML = message;
-            new bootstrap.Modal(document.getElementById('errorModal')).show();
+            if (isBootstrapAvailable()) {
+                document.getElementById('errorBody').innerHTML = message;
+                new bootstrap.Modal(document.getElementById('errorModal')).show();
+            } else {
+                window.alert('Error: ' + message);
+            }
         }
 
         function showRejectionModal(action) {
-            document.getElementById('rejectionReason').value = '';
             pendingRejectionAction = action;
-            new bootstrap.Modal(document.getElementById('rejectionModal')).show();
+            if (isBootstrapAvailable()) {
+                document.getElementById('rejectionReason').value = '';
+                new bootstrap.Modal(document.getElementById('rejectionModal')).show();
+            } else {
+                const reason = window.prompt('Reason for rejection:');
+                if (reason !== null && reason.trim() !== '') {
+                    action(reason.trim());
+                } else if (reason !== null) {
+                    showErrorModal('Please provide a reason for rejection');
+                }
+            }
         }
 
         function submitRejection() {
@@ -394,7 +428,9 @@
                 showErrorModal('Please provide a reason for rejection');
                 return;
             }
-            bootstrap.Modal.getInstance(document.getElementById('rejectionModal')).hide();
+            if (isBootstrapAvailable()) {
+                bootstrap.Modal.getInstance(document.getElementById('rejectionModal')).hide();
+            }
             if (pendingRejectionAction) {
                 pendingRejectionAction(reason);
             }
@@ -423,13 +459,16 @@
             if (pendingBookId) {
                 fetch('/api/rate-book/' + pendingBookId, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'same-origin',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({rating: selectedRating})
                 })
                 .then(r => r.json())
                 .then(d => {
                     if (d.success) {
-                        bootstrap.Modal.getInstance(document.getElementById('ratingModal')).hide();
+                        if (isBootstrapAvailable()) {
+                            bootstrap.Modal.getInstance(document.getElementById('ratingModal')).hide();
+                        }
                         showSuccessModal('Thank you for rating!');
                         setTimeout(() => location.reload(), 1500);
                     }
@@ -443,14 +482,25 @@
             document.getElementById('ratingText').innerHTML = 'Click to select rating';
             const stars = document.querySelectorAll('#ratingStars i');
             stars.forEach(star => star.style.color = '#ccc');
-            new bootstrap.Modal(document.getElementById('ratingModal')).show();
+            if (isBootstrapAvailable()) {
+                new bootstrap.Modal(document.getElementById('ratingModal')).show();
+            } else {
+                const rating = window.prompt('Enter rating between 1 and 5:');
+                const value = parseInt(rating, 10);
+                if (!Number.isNaN(value) && value >= 1 && value <= 5) {
+                    setRating(value);
+                    submitRating();
+                } else if (rating !== null) {
+                    showErrorModal('Invalid rating. Please enter a number between 1 and 5.');
+                }
+            }
         }
 
         function saveBook(bookId) {
             showConfirmModal(
                 '<i class="fas fa-bookmark"></i> <strong>Save Book?</strong><br><small>This book will be added to your saved collection.</small>',
                 function() {
-                    fetch('/api/save-book/' + bookId, {method: 'POST'})
+                    fetch('/api/save-book/' + bookId, {method: 'POST', credentials: 'same-origin'})
                         .then(r => r.json())
                         .then(d => {
                             if (d.success) {
@@ -470,7 +520,7 @@
             showConfirmModal(
                 '<i class="fas fa-trash"></i> <strong>Remove from saved?</strong><br><small>This book will be removed from your saved collection.</small>',
                 function() {
-                    fetch('/api/unsave-book/' + bookId, {method: 'POST'})
+                    fetch('/api/unsave-book/' + bookId, {method: 'POST', credentials: 'same-origin'})
                         .then(r => r.json())
                         .then(d => {
                             if (d.success) {

@@ -1,6 +1,12 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, send_file
 from database.db import get_db, get_books_by_dataset, get_all_categories, search_books, search_user_books, get_saved_books, get_reading_history, get_notifications, get_user_by_email, get_user_by_username, get_author_by_email
-from model.hybrid import hybrid_recommend
+try:
+    from model.hybrid import hybrid_recommend
+except Exception as e:
+    print(f"Warning: hybrid recommendations disabled: {e}")
+    def hybrid_recommend(*args, **kwargs):
+        return []
+
 import bcrypt
 from datetime import datetime
 import os
@@ -60,10 +66,20 @@ def verify_pwd(pwd, hashed):
     except:
         return False
 
+def is_api_request():
+    accept_header = request.headers.get("Accept", "")
+    return (
+        request.path.startswith("/api/")
+        or "application/json" in accept_header
+        or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    )
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if session.get("user_role") != "user":
+            if is_api_request():
+                return jsonify({"success": False, "error": "Unauthorized"}), 401
             return redirect(url_for("user_login"))
         return f(*args, **kwargs)
     return decorated
@@ -72,6 +88,8 @@ def author_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if session.get("user_role") != "author":
+            if is_api_request():
+                return jsonify({"success": False, "error": "Unauthorized"}), 401
             return redirect(url_for("author_login"))
         return f(*args, **kwargs)
     return decorated
@@ -80,6 +98,8 @@ def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if session.get("user_role") != "admin":
+            if is_api_request():
+                return jsonify({"success": False, "error": "Unauthorized"}), 401
             return redirect(url_for("admin_login"))
         return f(*args, **kwargs)
     return decorated
@@ -510,7 +530,8 @@ def approve_author(author_id):
 @app.route("/api/reject-author/<author_id>", methods=["POST"])
 @admin_required
 def reject_author(author_id):
-    reason = request.json.get("reason", "")
+    data = request.get_json(silent=True) or {}
+    reason = data.get("reason", "")
     db = get_db()
     db.authors.update_one(
         {"author_id": author_id},
@@ -602,7 +623,8 @@ def approve_book(book_id):
 @app.route("/api/admin/reject-book/<book_id>", methods=["POST"])
 @admin_required
 def reject_book(book_id):
-    reason = request.json.get("reason", "")
+    data = request.get_json(silent=True) or {}
+    reason = data.get("reason", "")
     db = get_db()
     db.books.update_one(
         {"book_id": book_id},

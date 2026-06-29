@@ -154,7 +154,7 @@ function removeAdmin(adminId) {
     showConfirmModal(
         '<i class="fas fa-trash"></i> <strong>Remove Admin?</strong><br><small>This admin will lose all access.</small>',
         function() {
-            fetch('/api/admin/remove-admin/' + adminId, {method: 'POST'})
+            fetch('/api/admin/remove-admin/' + adminId, {method: 'POST', credentials: 'same-origin'})
                 .then(r => r.json())
                 .then(d => {
                     if (d.success) {

@@ -83,7 +83,7 @@ function approveBook(bookId) {
     showConfirmModal(
         '<i class="fas fa-check-circle"></i> <strong>Approve Book?</strong><br><small>It will be published and visible to users.</small>',
         function() {
-            fetch('/api/admin/approve-book/' + bookId, {method: 'POST'})
+            fetch('/api/admin/approve-book/' + bookId, {method: 'POST', credentials: 'same-origin'})
                 .then(r => {
                     if (!r.ok) throw new Error('Server error: ' + r.status);
                     return r.json();
@@ -105,7 +105,8 @@ function rejectBook(bookId) {
     showRejectionModal(function(reason) {
         fetch('/api/admin/reject-book/' + bookId, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
             body: JSON.stringify({reason: reason})
         })
         .then(r => {
@@ -128,7 +129,7 @@ function deleteBook(bookId) {
     showConfirmModal(
         '<i class="fas fa-trash"></i> <strong>Delete Book?</strong><br><small class="text-danger">This action cannot be undone.</small>',
         function() {
-            fetch('/api/admin/delete-book/' + bookId, {method: 'POST'})
+            fetch('/api/admin/delete-book/' + bookId, {method: 'POST', credentials: 'same-origin'})
                 .then(r => {
                     if (!r.ok) throw new Error('Server error: ' + r.status);
                     return r.json();
