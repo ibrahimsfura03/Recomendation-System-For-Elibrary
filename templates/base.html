@@ -179,8 +179,9 @@
         </div>
     </div>
 
-    <!-- Sidebar for Logged In Users (All Pages) -->
-    {% if session.get('user_role') %}
+    <!-- Sidebar for Dashboard Pages Only -->
+    {% set show_sidebar = request.path in ['/user/dashboard', '/author/dashboard', '/author/upload-book', '/author/my-books', '/author/edit-book/' + request.view_args.get('book_id', ''), '/author/settings', '/admin/dashboard', '/admin/manage-users', '/admin/manage-authors', '/admin/manage-books', '/admin/settings', '/settings'] or request.path.startswith('/author/edit-book/') %}
+    {% if session.get('user_role') and show_sidebar %}
     <div class="sidebar show">
         <div class="profile-section">
             <div class="profile-avatar">
@@ -216,7 +217,7 @@
                 <a href="/author/my-books">
                     <i class="fas fa-book"></i> My Books
                 </a>
-                <a href="#">
+                <a href="/author/settings">
                     <i class="fas fa-cog"></i> Settings
                 </a>
             {% elif session.get('user_role') == 'admin' %}
@@ -243,7 +244,7 @@
     </div>
     {% endif %}
 
-    <div class="main-content {% if session.get('user_role') %}with-sidebar{% endif %}">
+    <div class="main-content {% if session.get('user_role') and show_sidebar %}with-sidebar{% endif %}">
         {% block content %}
         {% endblock %}
     </div>

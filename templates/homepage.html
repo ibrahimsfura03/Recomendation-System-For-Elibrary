@@ -3,11 +3,19 @@
 {% block content %}
 <div class="container-fluid">
     <!-- Hero Section -->
-    <div class="row mb-5">
+    <div class="row" style="margin-bottom: 1.5rem;">
         <div class="col-12">
-            <div class="bg-gradient p-5 rounded-lg shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <h1 class="mb-3"><i class="fas fa-book-open"></i> Welcome to E-Library</h1>
-                <p class="lead mb-4">Discover thousands of books and get personalized recommendations</p>
+            <div class="bg-gradient p-4 rounded-lg shadow-sm" style="background: linear-gradient(135deg, #2fa5a5 0%, #1f7a7a 100%); color: white;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h1 class="mb-1" style="color: #3a3a3a;"><i class="fas fa-book-open"></i> E-Library</h1>
+                        {% if session.get('user_role') in ['user', 'author'] %}
+                        <p class="lead mb-0" style="color: #3a3a3a;">Welcome, <strong>{{ session.get('user_name', session.get('username', 'User')) }}</strong>! Discover your next great read</p>
+                        {% else %}
+                        <p class="lead mb-0" style="color: #3a3a3a;">Discover thousands of books and get personalized recommendations</p>
+                        {% endif %}
+                    </div>
+                </div>
                 <form action="/search" method="GET" class="d-flex gap-2">
                     <input type="text" class="form-control form-control-lg" name="q" placeholder="Search books by title, author, or category..." value="{{ request.args.get('q', '') }}">
                     <button class="btn btn-light btn-lg" type="submit"><i class="fas fa-search"></i> Search</button>
@@ -15,6 +23,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Join Cards Section (After Search) -->
+    {% if session.get('user_role') != 'user' and not session.get('user_role') %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white border-0 shadow-sm" style="background-color: var(--primary-teal) !important;">
+                <div class="card-body p-4">
+                    <h5 class="card-title"><i class="fas fa-user-circle"></i> Join as Reader</h5>
+                    <p class="card-text">Sign up and start reading amazing books with personalized recommendations</p>
+                    <a href="/signup" class="btn w-100" style="background-color: #ffc107; color: #333; font-weight: bold;"><i class="fas fa-arrow-right"></i> Sign Up</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white border-0 shadow-sm" style="background-color: #1f7a7a !important;">
+                <div class="card-body p-4">
+                    <h5 class="card-title"><i class="fas fa-pen-fancy"></i> Join as Author</h5>
+                    <p class="card-text">Share your books with readers worldwide. Register now!</p>
+                    <a href="/author/signup" class="btn w-100" style="background-color: #28a745; color: white; font-weight: bold;"><i class="fas fa-arrow-right"></i> Register</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Categories Section -->
     {% if categories %}
@@ -78,7 +110,7 @@
                         
                         <!-- Category Badge -->
                         <div class="mb-2">
-                            <span class="badge" style="background-color: #667eea; color: white;">{{ book.category }}</span>
+                            <span class="badge" style="background-color: var(--primary-teal); color: white;">{{ book.category }}</span>
                         </div>
                         
                         <!-- Rating -->
@@ -89,7 +121,7 @@
                         
                         <!-- Buttons -->
                         <div class="d-grid gap-2">
-                            <a href="/book/{{ book.book_id }}" class="btn btn-sm" style="background-color: #667eea; color: white; border: none;"><i class="fas fa-eye"></i> View Details</a>
+                            <a href="/book/{{ book.book_id }}" class="btn btn-sm text-white" style="background-color: var(--primary-teal); border: none;"><i class="fas fa-eye"></i> View Details</a>
                         </div>
                         
                         <!-- Quick Actions -->
@@ -121,30 +153,9 @@
     <div class="row mb-5">
         <div class="col-12">
             <div class="row g-3">
-                {% if session.get('user_role') != 'user' and not session.get('user_role') %}
-                <div class="col-md-6">
-                    <div class="card bg-primary text-white border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <h5 class="card-title"><i class="fas fa-user-circle"></i> Join as Reader</h5>
-                            <p class="card-text">Sign up and start reading amazing books with personalized recommendations</p>
-                            <a href="/signup" class="btn btn-light btn-sm"><i class="fas fa-arrow-right"></i> Sign Up</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card bg-success text-white border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <h5 class="card-title"><i class="fas fa-pen-fancy"></i> Join as Author</h5>
-                            <p class="card-text">Share your books with readers worldwide. Register now!</p>
-                            <a href="/author/signup" class="btn btn-light btn-sm"><i class="fas fa-arrow-right"></i> Register</a>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
                 {% if session.get('user_role') == 'author' %}
                 <div class="col-md-12">
-                    <div class="card bg-info text-white border-0 shadow-sm">
+                    <div class="card text-white border-0 shadow-sm" style="background-color: var(--primary-teal);">
                         <div class="card-body p-4 d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="card-title"><i class="fas fa-upload"></i> Ready to Share Your Work?</h5>

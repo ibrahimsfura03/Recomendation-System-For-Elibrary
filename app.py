@@ -177,6 +177,7 @@ def user_login():
             session["user_id"] = user["user_id"]
             session["user_role"] = "user"
             session["username"] = user.get("username", "")
+            session["user_name"] = user.get("full_name", "")
             session["email"] = user.get("email", "")
             return redirect(url_for("user_dashboard"))
         else:
@@ -419,6 +420,7 @@ def author_login():
             session["author_id"] = author["author_id"]
             session["user_role"] = "author"
             session["username"] = author.get("username", "")
+            session["user_name"] = author.get("full_name", "")
             return redirect(url_for("author_dashboard"))
         else:
             return render_template("author_login.html", error="Invalid email or password")
@@ -462,6 +464,7 @@ def admin_login():
         if admin and verify_pwd(password, admin.get("password", "")):
             session["admin_id"] = admin["admin_id"]
             session["user_role"] = "admin"
+            session["user_name"] = admin.get("full_name", "Admin")
             return redirect(url_for("admin_dashboard"))
         else:
             return render_template("admin_login.html", error="Invalid username or password")
@@ -776,6 +779,268 @@ def edit_book(book_id):
         return redirect(url_for("author_my_books"))
     
     return render_template("author_edit_book.html", book=book, categories=get_all_categories())
+
+# ====== USER SETTINGS ======
+
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def user_settings():
+    db = get_db()
+    user_id = session.get("user_id")
+    user = db.users.find_one({"user_id": user_id})
+    
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        
+        errors = []
+        
+        # Check if username/email are already taken (by other users)
+        if db.users.find_one({"username": username, "user_id": {"$ne": user_id}}):
+            errors.append("Username already taken")
+        if db.users.find_one({"email": email, "user_id": {"$ne": user_id}}):
+            errors.append("Email already in use")
+        
+        if not errors:
+            db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {
+                    "full_name": full_name,
+                    "username": username,
+                    "email": email,
+                    "phone": phone
+                }}
+            )
+            session["username"] = username
+            session["user_name"] = full_name
+            session["email"] = email
+            return render_template("settings.html", user=user, success_message="Profile updated successfully")
+        else:
+            return render_template("settings.html", user=user, error_message=", ".join(errors))
+    
+    return render_template("settings.html", user=user)
+
+@app.route("/settings/change-password", methods=["POST"])
+@login_required
+def user_change_password():
+    db = get_db()
+    user_id = session.get("user_id")
+    
+    current_password = request.form.get("current_password", "")
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_password", "")
+    
+    user = db.users.find_one({"user_id": user_id})
+    
+    errors = []
+    if not verify_pwd(current_password, user.get("password", "")):
+        errors.append("Current password is incorrect")
+    if new_password != confirm_password:
+        errors.append("Passwords don't match")
+    if len(new_password) < 6:
+        errors.append("Password must be at least 6 characters")
+    
+    if not errors:
+        db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {"password": hash_password(new_password)}}
+        )
+        return render_template("settings.html", user=user, success_message="Password changed successfully")
+    else:
+        return render_template("settings.html", user=user, error_message=", ".join(errors))
+
+# ====== AUTHOR SETTINGS ======
+
+@app.route("/author/settings", methods=["GET", "POST"])
+@author_required
+def author_settings():
+    db = get_db()
+    author_id = session.get("author_id")
+    author = db.authors.find_one({"author_id": author_id})
+    
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip()
+        bio = request.form.get("bio", "").strip()
+        institution = request.form.get("institution", "").strip()
+        
+        errors = []
+        
+        if db.authors.find_one({"username": username, "author_id": {"$ne": author_id}}):
+            errors.append("Username already taken")
+        if db.authors.find_one({"email": email, "author_id": {"$ne": author_id}}):
+            errors.append("Email already in use")
+        
+        if not errors:
+            db.authors.update_one(
+                {"author_id": author_id},
+                {"$set": {
+                    "full_name": full_name,
+                    "username": username,
+                    "email": email,
+                    "biography": bio,
+                    "institution": institution
+                }}
+            )
+            author = db.authors.find_one({"author_id": author_id})
+            session["username"] = username
+            session["user_name"] = full_name
+            categories = get_all_categories()
+            return render_template("author_settings.html", author=author, categories=categories, success_message="Profile updated successfully")
+        else:
+            categories = get_all_categories()
+            return render_template("author_settings.html", author=author, categories=categories, error_message=", ".join(errors))
+    
+    categories = get_all_categories()
+    return render_template("author_settings.html", author=author, categories=categories)
+
+@app.route("/author/settings/specialization", methods=["POST"])
+@author_required
+def author_settings_specialization():
+    db = get_db()
+    author_id = session.get("author_id")
+    
+    categories = request.form.getlist("categories")
+    
+    db.authors.update_one(
+        {"author_id": author_id},
+        {"$set": {"categories": categories}}
+    )
+    
+    author = db.authors.find_one({"author_id": author_id})
+    all_categories = get_all_categories()
+    return render_template("author_settings.html", author=author, categories=all_categories, success_message="Categories updated successfully")
+
+@app.route("/author/settings/change-password", methods=["POST"])
+@author_required
+def author_change_password():
+    db = get_db()
+    author_id = session.get("author_id")
+    
+    current_password = request.form.get("current_password", "")
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_password", "")
+    
+    author = db.authors.find_one({"author_id": author_id})
+    
+    errors = []
+    if not verify_pwd(current_password, author.get("password", "")):
+        errors.append("Current password is incorrect")
+    if new_password != confirm_password:
+        errors.append("Passwords don't match")
+    if len(new_password) < 6:
+        errors.append("Password must be at least 6 characters")
+    
+    if not errors:
+        db.authors.update_one(
+            {"author_id": author_id},
+            {"$set": {"password": hash_password(new_password)}}
+        )
+        all_categories = get_all_categories()
+        return render_template("author_settings.html", author=author, categories=all_categories, success_message="Password changed successfully")
+    else:
+        all_categories = get_all_categories()
+        return render_template("author_settings.html", author=author, categories=all_categories, error_message=", ".join(errors))
+
+# ====== ADMIN SETTINGS ======
+
+@app.route("/admin/settings", methods=["GET", "POST"])
+@admin_required
+def admin_settings():
+    db = get_db()
+    admin_id = session.get("admin_id")
+    
+    if request.method == "POST":
+        action = request.form.get("action", "")
+        
+        if action == "change_password":
+            current_password = request.form.get("current_password", "")
+            new_password = request.form.get("new_password", "")
+            confirm_password = request.form.get("confirm_password", "")
+            
+            admin = db.admins.find_one({"admin_id": admin_id})
+            
+            errors = []
+            if not verify_pwd(current_password, admin.get("password", "")):
+                errors.append("Current password is incorrect")
+            if new_password != confirm_password:
+                errors.append("Passwords don't match")
+            if len(new_password) < 6:
+                errors.append("Password must be at least 6 characters")
+            
+            if not errors:
+                db.admins.update_one(
+                    {"admin_id": admin_id},
+                    {"$set": {"password": hash_password(new_password)}}
+                )
+                admins = list(db.admins.find({}))
+                current_admin = db.admins.find_one({"admin_id": admin_id})
+                return render_template("admin_settings.html", admins=admins, current_admin=current_admin, success_message="Password changed successfully")
+            else:
+                admins = list(db.admins.find({}))
+                current_admin = db.admins.find_one({"admin_id": admin_id})
+                return render_template("admin_settings.html", admins=admins, current_admin=current_admin, error_message=", ".join(errors))
+    
+    admins = list(db.admins.find({}))
+    current_admin = db.admins.find_one({"admin_id": admin_id})
+    return render_template("admin_settings.html", admins=admins, current_admin=current_admin)
+
+@app.route("/admin/add-admin", methods=["POST"])
+@admin_required
+def add_admin():
+    db = get_db()
+    
+    full_name = request.form.get("full_name", "").strip()
+    email = request.form.get("email", "").strip()
+    password = request.form.get("password", "")
+    confirm_password = request.form.get("confirm_password", "")
+    
+    errors = []
+    if not full_name:
+        errors.append("Full name required")
+    if not email or "@" not in email:
+        errors.append("Valid email required")
+    if password != confirm_password:
+        errors.append("Passwords don't match")
+    if len(password) < 6:
+        errors.append("Password must be at least 6 characters")
+    
+    if db.admins.find_one({"email": email}):
+        errors.append("Email already registered")
+    
+    if errors:
+        admins = list(db.admins.find({}))
+        current_admin = db.admins.find_one({"admin_id": session.get("admin_id")})
+        return render_template("admin_settings.html", admins=admins, current_admin=current_admin, error_message=", ".join(errors))
+    
+    admin_doc = {
+        "admin_id": f"AD{db.admins.count_documents({}) + 1001}",
+        "full_name": full_name,
+        "email": email,
+        "password": hash_password(password),
+        "created_at": datetime.now()
+    }
+    
+    db.admins.insert_one(admin_doc)
+    admins = list(db.admins.find({}))
+    current_admin = db.admins.find_one({"admin_id": session.get("admin_id")})
+    return render_template("admin_settings.html", admins=admins, current_admin=current_admin, success_message="Admin added successfully")
+
+@app.route("/api/admin/remove-admin/<admin_id>", methods=["POST"])
+@admin_required
+def remove_admin(admin_id):
+    db = get_db()
+    current_admin_id = session.get("admin_id")
+    
+    # Don't allow removing yourself
+    if admin_id == current_admin_id:
+        return jsonify({"success": False, "error": "Cannot remove yourself"}), 400
+    
+    db.admins.delete_one({"admin_id": admin_id})
+    return jsonify({"success": True})
 
 @app.route("/logout")
 def logout():

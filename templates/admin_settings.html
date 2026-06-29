@@ -86,30 +86,29 @@
         {% endif %}
     </div>
 
-    <!-- System Settings -->
+    <!-- Change Password -->
     <div class="settings-section">
-        <h4 class="settings-title">System Settings</h4>
+        <h4 class="settings-title">Change Password</h4>
 
         <form action="/admin/settings" method="POST">
+            <input type="hidden" name="action" value="change_password">
+            
             <div class="mb-3">
-                <label class="form-label">Site Name</label>
-                <input type="text" class="form-control" name="site_name" value="{{ settings.get('site_name', 'E-Library') }}" required>
+                <label class="form-label">Current Password</label>
+                <input type="password" class="form-control" name="current_password" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Max Upload Size (MB)</label>
-                <input type="number" class="form-control" name="max_upload_size" value="{{ settings.get('max_upload_size', 50) }}" required>
+                <label class="form-label">New Password</label>
+                <input type="password" class="form-control" name="new_password" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input" name="require_email_verification" 
-                        {% if settings.get('require_email_verification') %}checked{% endif %}>
-                    Require email verification for new users
-                </label>
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" class="form-control" name="confirm_password" required>
             </div>
 
-            <button type="submit" class="btn text-white" style="background-color: var(--primary-teal);">Save Settings</button>
+            <button type="submit" class="btn text-white" style="background-color: var(--primary-teal);">Update Password</button>
         </form>
     </div>
 </div>

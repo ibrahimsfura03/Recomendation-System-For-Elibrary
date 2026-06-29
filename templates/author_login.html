@@ -1,11 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-5 mx-auto">
-        <div class="card">
+<style>
+    .login-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 60px);
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 450px;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="card border-0 shadow">
             <div class="card-body p-4">
-                <h3 class="card-title mb-4">Author Login</h3>
+                <h3 class="card-title mb-4 text-center" style="color: var(--primary-teal);">Author Login</h3>
 
                 {% if error %}
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -25,15 +39,15 @@
                         <input type="password" class="form-control" name="password" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+                    <button type="submit" class="btn w-100 mb-3 text-white" style="background-color: var(--primary-teal);">Login</button>
                 </form>
 
                 <hr>
-                <p class="text-center text-muted">
-                    Not registered? <a href="/author/signup">Sign up here</a>
+                <p class="text-center text-muted mb-2">
+                    Not registered? <a href="/author/signup" style="color: var(--primary-teal);">Sign up here</a>
                 </p>
-                <p class="text-center text-muted small">
-                    <a href="/login">User Login</a> | <a href="/admin/login">Admin Login</a>
+                <p class="text-center text-muted small mb-0">
+                    <a href="/login" style="color: var(--primary-teal);">User Login</a> | <a href="/admin/login" style="color: var(--primary-teal);">Admin Login</a>
                 </p>
             </div>
         </div>
