@@ -81,15 +81,19 @@ function suspendUser(userId) {
         '<i class="fas fa-ban"></i> <strong>Suspend User?</strong><br><small>This user will be suspended and unable to access their account.</small>',
         function() {
             fetch('/api/admin/suspend-user/' + userId, {method: 'POST'})
-                .then(r => r.json())
+                .then(r => {
+                    if (!r.ok) throw new Error('Server error: ' + r.status);
+                    return r.json();
+                })
                 .then(d => {
                     if (d.success) {
                         showSuccessModal('User suspended successfully');
                         setTimeout(() => location.reload(), 1500);
                     } else {
-                        showErrorModal('Error suspending user');
+                        showErrorModal(d.error || 'Error suspending user');
                     }
-                });
+                })
+                .catch(e => showErrorModal('Network error: ' + e.message));
         }
     );
 }
@@ -99,15 +103,19 @@ function deleteUser(userId) {
         '<i class="fas fa-trash"></i> <strong>Delete User?</strong><br><small class="text-danger">This action cannot be undone. All user data will be permanently deleted.</small>',
         function() {
             fetch('/api/admin/delete-user/' + userId, {method: 'POST'})
-                .then(r => r.json())
+                .then(r => {
+                    if (!r.ok) throw new Error('Server error: ' + r.status);
+                    return r.json();
+                })
                 .then(d => {
                     if (d.success) {
                         showSuccessModal('User deleted successfully');
                         setTimeout(() => location.reload(), 1500);
                     } else {
-                        showErrorModal('Error deleting user');
+                        showErrorModal(d.error || 'Error deleting user');
                     }
-                });
+                })
+                .catch(e => showErrorModal('Network error: ' + e.message));
         }
     );
 }

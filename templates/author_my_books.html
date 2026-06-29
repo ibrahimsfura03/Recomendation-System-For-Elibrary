@@ -232,13 +232,19 @@ function deleteBook(bookId) {
         '<i class="fas fa-trash"></i> <strong>Delete Book?</strong><br><small class="text-danger">This action cannot be undone.</small>',
         function() {
             fetch('/api/author/delete-book/' + bookId, {method: 'POST'})
-                .then(r => r.json())
+                .then(r => {
+                    if (!r.ok) throw new Error('Server error: ' + r.status);
+                    return r.json();
+                })
                 .then(d => {
                     if (d.success) {
                         showSuccessModal('Book deleted successfully');
                         setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal(d.error || 'Error deleting book');
                     }
-                });
+                })
+                .catch(e => showErrorModal('Network error: ' + e.message));
         }
     );
 }
